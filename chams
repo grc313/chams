@@ -1,0 +1,56 @@
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local storage = {}
+
+
+
+
+
+local function applyChams(player: Player)
+    local highlight = Instance.new("Highlight")
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.FillColor = Color3.fromRGB(52, 224, 224)
+    highlight.FillTransparency = 0.25
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.5
+
+    local function onAdded(character)
+        highlight.Adornee = character
+        highlight.Parent = character
+    end
+
+    local function onRemoved()
+        highlight.Adornee = nil
+        highlight.Parent = nil
+    end
+
+    if player.Character then
+        onAdded(player.Character)
+    end
+
+    player.CharacterAdded:Connect(onAdded)
+    player.CharacterRemoving:Connect(onRemoved)
+
+    storage[player] = highlight
+end
+
+
+
+local function removeChams(player: Player)
+    local highlight = storage[player]
+    if highlight then
+        highlight:Destroy()
+        highlight = nil
+        storage[player] = nil
+    end
+end
+
+for i,v in next, players:GetPlayers() do
+    if v ~= localPlayer then
+        applyChams(v)
+    end
+end
+
+
+players.PlayerAdded:Connect(applyChams)
+players.PlayerRemoving:Connect(removeChams)
